@@ -41,15 +41,12 @@ function bn_add_scripts($hook) {
 
 /******Creating Admin menu here*******/
 add_action( 'admin_menu', 'built_admin_menu', 2 );
-function built_admin_menu()
-{
+function built_admin_menu() {
 	add_menu_page( 'Breaking News', 'Breaking News', 'manage_options', 'bn_settings', 'bn_setting_page' );
 }
 
-function bn_setting_page()
-{
-
-	load_template( BN_PLUGIN_DIR . 'views/plugin_page.php' );
+function bn_setting_page() {
+  load_template( BN_PLUGIN_DIR . 'views/plugin_page.php' );
 }
 
 
@@ -63,7 +60,7 @@ add_action( 'add_meta_boxes', 'breaking_news_meta_boxes' );
 
 /*** Meta box display callback.*/
 function bn_display_callback( $post ) {
-    //include plugin_dir_path( __FILE__ ) . './form.php';
+    
     load_template( BN_PLUGIN_DIR . 'views/breaking_news_selection_meta_box.php' );
 }
 
@@ -71,9 +68,11 @@ function bn_display_callback( $post ) {
 /*** Save meta box content. */
 add_action( 'save_post', 'breaking_news_save_meta_box' );
 function breaking_news_save_meta_box( $post_id ) {
-    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+  
+  if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+    
     if ( $parent_id = wp_is_post_revision( $post_id ) ) {
-        $post_id = $parent_id;
+      $post_id = $parent_id;
     }
 
     $fields = [
@@ -82,25 +81,26 @@ function breaking_news_save_meta_box( $post_id ) {
         'bn_select_expiry',
         'bn_select_datetime',
     ];
+
     foreach ( $fields as $field ) {
         if ( array_key_exists( $field, $_POST ) ) {
             update_post_meta( $post_id, $field, sanitize_text_field( $_POST[$field] ) );
         }
-     }
+    }
      
-    $bn_select_breaking_news = strtolower($_POST['bn_select_breaking_news']);
-  	if(isset($_POST['bn_select_breaking_news']) and $bn_select_breaking_news=='yes'){
+    $bn_select_breaking_news = strtolower( $_POST[ 'bn_select_breaking_news' ] );
+
+  	if ( isset( $_POST[ 'bn_select_breaking_news' ] ) and $bn_select_breaking_news == 'yes' ){
   		$setting_result = update_post_meta( $post_id, 'bn_select_breaking_news', $_POST['bn_select_breaking_news'] );
-  	}
-  	else{
+  	} else{
   		$setting_result = update_post_meta( $post_id, 'bn_select_breaking_news', 'no' );
   	}
 
-  	$bn_select_expiry = strtolower($_POST['bn_select_expiry']);
-  	if(isset($_POST['bn_select_expiry']) and $bn_select_expiry=='yes'){
+  	$bn_select_expiry = strtolower( $_POST[ 'bn_select_expiry' ] );
+
+  	if ( isset( $_POST[ 'bn_select_expiry' ] ) and $bn_select_expiry == 'yes' ){
   		$setting_result = update_post_meta( $post_id, 'bn_select_expiry', $_POST['bn_select_expiry'] );
-  	}
-  	else{
+  	} else{
   		$setting_result = update_post_meta( $post_id, 'bn_select_expiry', 'no' );
   	}
 }
@@ -127,16 +127,16 @@ function expire_breaking_news(){
     )
   );
 
-  $query = new WP_Query($args);
+  $query = new WP_Query( $args );
   
     while ( $query->have_posts() ) : $query->the_post();
       
-      $expiry_datetime = get_post_meta( get_the_ID(), 'bn_select_datetime', true) ;
-      $expiry_datetime_formatted = new DateTime($expiry_datetime);
+      $expiry_datetime = get_post_meta( get_the_ID(), 'bn_select_datetime', true ) ;
+      $expiry_datetime_formatted = new DateTime( $expiry_datetime );
       
       $current_datetime = new DateTime();
 
-      if ($current_datetime >= $expiry_datetime_formatted) {
+      if ( $current_datetime >= $expiry_datetime_formatted ) {
 
         update_post_meta( get_the_ID(), 'bn_select_breaking_news', 'no' );
         update_post_meta( get_the_ID(), 'bn_select_expiry', 'no' );
